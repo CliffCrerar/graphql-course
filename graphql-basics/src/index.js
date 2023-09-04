@@ -1,5 +1,6 @@
 import {GraphQLServer} from 'graphql-yoga';
 
+
 // Type definitions (Schema)
 
 const typeDefs = `
