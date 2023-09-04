@@ -24,7 +24,7 @@ const resolvers = {
             return 2
         },
         releaseYear() {
-            return 2002
+            return 2010
         },
         rating() {
             return null
