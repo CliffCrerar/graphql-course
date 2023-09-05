@@ -5,11 +5,17 @@ import {GraphQLServer} from 'graphql-yoga';
 
 const typeDefs = `
     type Query {
-        title: String!
-        price: Float!
-        releaseYear: Int
-        rating: Float
-        inStock: Boolean!
+        greeting(name: String): String!
+        me:User!
+        add(numbers: [Float!]!): Float!
+        grades: [Int!]!
+    }
+
+    type User {
+        id: ID!
+        name: String!
+        email: String!
+        age: Int
     }
 `
 
@@ -17,20 +23,37 @@ const typeDefs = `
 
 const resolvers = {
     Query: {
-        title() {
-            return 'iPhone'
+        grades(parent, args, ctx, info) {
+            return [99,80,90]
         },
-        price() {
-            return 2
+        add(parent, args ,ctx, info) {
+            if(args.numbers.length === 0) {
+                return 0
+            }
+
+            return args.numbers.reduce((acc, currVal) => {
+                return acc + currVal;
+            })
         },
-        releaseYear() {
-            return 2010
+        me() {
+            return {
+                id: 1,
+                name: "Cliff",
+                email: "cliff.crerar@gmail.com"
+            }
         },
-        rating() {
-            return null
-        },
-        inStock() {
-            return false
+        greeting(parent, args, ctx, info) {
+
+            console.log("parent:",parent)
+            console.log("args:",args)
+            console.log("ctx:",ctx)
+            console.log("info:",info)
+
+            if(args.name) {
+                return `Hello ${args.name}`
+            }
+
+            return 'Hello!'
         }
     }
 }
