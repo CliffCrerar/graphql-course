@@ -1,14 +1,16 @@
-import {GraphQLServer} from 'graphql-yoga';
+import { GraphQLServer } from 'graphql-yoga'
+import { users,posts,comments } from './data'
 
+// Scalar types - String, Boolean, Int, Float, ID
 
-// Type definitions (Schema)
-
+// Type definitions (schema)
 const typeDefs = `
     type Query {
-        greeting(name: String): String!
-        me:User!
-        add(numbers: [Float!]!): Float!
-        grades: [Int!]!
+        users(query: String): [User!]!
+        posts(query: String): [Post!]!
+        comments: [Comment!]!
+        me: User!
+        post: Post!
     }
 
     type User {
@@ -16,44 +18,103 @@ const typeDefs = `
         name: String!
         email: String!
         age: Int
+        posts: [Post!]!
+        comments: [Comment!]!
+    }
+
+    type Post {
+        id: ID!
+        title: String!
+        body: String!
+        published: Boolean!
+        author: User!
+        comments: [Comment!]!
+    }
+
+    type Comment {
+        id: ID!
+        text: String!
+        author: User!
+        post: Post!
     }
 `
 
 // Resolvers
-
 const resolvers = {
     Query: {
-        grades(parent, args, ctx, info) {
-            return [99,80,90]
-        },
-        add(parent, args ,ctx, info) {
-            if(args.numbers.length === 0) {
-                return 0
+        users(parent, args, ctx, info) {
+            if (!args.query) {
+                return users
             }
 
-            return args.numbers.reduce((acc, currVal) => {
-                return acc + currVal;
+            return users.filter((user) => {
+                return user.name.toLowerCase().includes(args.query.toLowerCase())
             })
+        },
+        posts(parent, args, ctx, info) {
+            if (!args.query) {
+                return posts
+            }
+
+            return posts.filter((post) => {
+                const isTitleMatch = post.title.toLowerCase().includes(args.query.toLowerCase())
+                const isBodyMatch = post.body.toLowerCase().includes(args.query.toLowerCase())
+                return isTitleMatch || isBodyMatch
+            })
+        },
+        comments(parent, args, ctx, info) {
+            return comments
         },
         me() {
             return {
-                id: 1,
-                name: "Cliff",
-                email: "cliff.crerar@gmail.com"
+                id: '123098',
+                name: 'Mike',
+                email: 'mike@example.com'
             }
         },
-        greeting(parent, args, ctx, info) {
-
-            console.log("parent:",parent)
-            console.log("args:",args)
-            console.log("ctx:",ctx)
-            console.log("info:",info)
-
-            if(args.name) {
-                return `Hello ${args.name}`
+        post() {
+            return {
+                id: '092',
+                title: 'GraphQL 101',
+                body: '',
+                published: false
             }
-
-            return 'Hello!'
+        }
+    },
+    Post: {
+        author(parent, args, ctx, info) {
+            return users.find((user) => {
+                return user.id === parent.author
+            })
+        },
+        comments(parent, args, ctx, info) {
+            return comments.filter((comment) => {
+                return comment.post === parent.id
+            })
+        }
+    },
+    Comment: {
+        author(parent, args, ctx, info) {
+            return users.find((user) => {
+                return user.id === parent.author
+            })
+        },
+        post(parent, args, ctx, info) {
+            return posts.find((post) => {
+                return post.id === parent.post
+            })
+        }
+    },
+    User: {
+        posts(parent, args, ctx, info) {
+            return posts.filter((post) => {
+                return post.author === parent.id
+            })
+        },
+        comments(parent, args, ctx, info) {
+            return comments.filter((comment) => {
+                return comment.author === parent.id
+            })
         }
     }
 }
@@ -63,6 +124,6 @@ const server = new GraphQLServer({
     resolvers
 })
 
-server.start(()=> {
-    console.log('Graph QL server is running!');
-});
+server.start(() => {
+    console.log('The server is up!')
+})
