@@ -1,8 +1,8 @@
 import { GraphQLServer } from 'graphql-yoga'
-import { users,posts,comments } from './data'
-
+import { v4 } from 'uuid'
+import { comments, posts, users } from './data';
 // Scalar types - String, Boolean, Int, Float, ID
-
+const uuidv4 = v4;
 // Type definitions (schema)
 const typeDefs = `
     type Query {
@@ -11,6 +11,12 @@ const typeDefs = `
         comments: [Comment!]!
         me: User!
         post: Post!
+    }
+
+    type Mutation {
+        createUser(name: String!, email: String!, age: Int): User!
+        createPost(title: String!, body: String!, published: Boolean!, author: ID!): Post!
+        createComment(text: String!, author: ID!, post: ID!): Comment!
     }
 
     type User {
@@ -79,6 +85,57 @@ const resolvers = {
                 body: '',
                 published: false
             }
+        }
+    },
+    Mutation: {
+        createUser(parent, args, ctx, info) {
+            const emailTaken = users.some((user) => user.email === args.email)
+
+            if (emailTaken) {
+                throw new Error('Email taken')
+            }
+
+            const user = {
+                id: uuidv4(),
+                ...args
+            }
+
+            users.push(user)
+
+            return user
+        },
+        createPost(parent, args, ctx, info) {
+            const userExists = users.some((user) => user.id === args.author)
+
+            if (!userExists) {
+                throw new Error('User not found')
+            }
+
+            const post = {
+                id: uuidv4(),
+                ...args
+            }
+
+            posts.push(post)
+
+            return post
+        },
+        createComment(parent, args, ctx, info) {
+            const userExists = users.some((user) => user.id === args.author)
+            const postExists = posts.some((post) => post.id === args.post && post.published)
+
+            if (!userExists || !postExists) {
+                throw new Error('Unable to find user and post')
+            }
+
+            const comment = {
+                id: uuidv4(),
+                ...args
+            }
+
+            comments.push(comment)
+
+            return comment
         }
     },
     Post: {
