@@ -4,11 +4,11 @@ const Post = {
             return user.id === parent.author
         })
     },
-    comments(parent, args, ctx, info) {
+    comments(parent, args, { db }, info) {
         return db.comments.filter((comment) => {
             return comment.post === parent.id
         })
     }
 }
 
-export { Post };
+export { Post as default }

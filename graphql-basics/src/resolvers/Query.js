@@ -1,5 +1,3 @@
-
-
 const Query = {
     users(parent, args, { db }, info) {
         if (!args.query) {
@@ -15,7 +13,7 @@ const Query = {
             return db.posts
         }
 
-        return posts.filter((post) => {
+        return db.posts.filter((post) => {
             const isTitleMatch = post.title.toLowerCase().includes(args.query.toLowerCase())
             const isBodyMatch = post.body.toLowerCase().includes(args.query.toLowerCase())
             return isTitleMatch || isBodyMatch
@@ -41,4 +39,4 @@ const Query = {
     }
 }
 
-export { Query };
+export { Query as default }

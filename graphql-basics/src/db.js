@@ -1,4 +1,3 @@
-
 const users = [{
     id: '1',
     name: 'Andrew',
@@ -56,10 +55,10 @@ const comments = [{
     post: '12'
 }]
 
-const dataContext = {
+const db = {
     users,
     posts,
     comments
 }
 
-export default dataContext;
+export { db as default }
