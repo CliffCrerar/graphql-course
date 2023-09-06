@@ -1,4 +1,4 @@
-// Demo user data
+
 const users = [{
     id: '1',
     name: 'Andrew',
@@ -30,7 +30,7 @@ const posts = [{
     id: '12',
     title: 'Programming Music',
     body: '',
-    published: false,
+    published: true,
     author: '2'
 }]
 
@@ -53,9 +53,13 @@ const comments = [{
     id: '105',
     text: 'Nevermind. I got it to work.',
     author: '1',
-    post: '11'
+    post: '12'
 }]
 
-export {
-    users, posts, comments
+const dataContext = {
+    users,
+    posts,
+    comments
 }
+
+export default dataContext;
