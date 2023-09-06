@@ -15,7 +15,7 @@ const Mutation = {
             ...args.data
         }
 
-        users.push(db.user)
+        db.users.push(user)
 
         return user
     },
@@ -97,6 +97,36 @@ const Mutation = {
         const deletedComments = db.comments.splice(commentIndex, 1)
 
         return deletedComments[0]
+    },
+
+    updateUser(parent, args, {db}, info) {
+        console.log("🚀 ~ file: Mutation.js:103 ~ updateUser ~ db:", db)
+        
+        const user = db.users.find(user => user.id === args.id);
+
+        if(!user) {
+            throw 'User not Found';
+        }
+
+        if(typeof args.data.email === 'string') {
+            const emailTaken = db.users.some(user => user.email === args.data.email)
+
+            if(emailTaken) {
+                throw new Error('Email exists');
+            }
+
+            user.email = args.data.email;
+        }
+
+        if(typeof args.data.name === 'string') {
+            user.name = args.data.name
+        }
+
+        if(typeof args.data.age !== 'undefined') {
+            user.age = args.data.age;
+        }
+
+        return user;
     }
 }
 
